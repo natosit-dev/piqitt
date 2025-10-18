@@ -1,0 +1,69 @@
+profile:
+  name: Clinical-Minimal
+  steps:
+    # Patient checks
+    - id: PAT-1
+      resource: Patient
+      path: birthDate
+      sam: Attr_IsDate
+      params: {}
+      effect: Scoring
+      weight: 1.0
+      critical: false
+
+    # Observation code present and valid LOINC
+    - id: OBS-1
+      resource: Observation
+      path: code
+      sam: Concept_HasCode
+      params: {}
+      effect: Scoring
+
+    - id: OBS-2
+      resource: Observation
+      path: code
+      sam: Concept_IsValidMember
+      params:
+        system: LOINC
+      effect: Scoring
+
+    # Observation result plausibility (MVP numeric sanity only for now)
+    - id: OBS-3
+      resource: Observation
+      path: value[x]
+      sam: ObservationValue_IsNumeric
+      params: {}
+      effect: Informational   # doesn’t change score yet — flip to Scoring when you’re ready
+
+    # Range presence (if you emit reference ranges later)
+    - id: OBS-4
+      resource: Observation
+      path: referenceRange*
+      sam: RangeValue_IsComplete
+      params: {}
+      effect: Informational
+
+    # Lab plausibility (stub)
+    - id: OBS-5
+      resource: Observation
+      path: code
+      sam: LabResult_ValueIsPlausible
+      params: {}
+      effect: Informational
+
+      # Unit compatibility (strong)
+    - id: OBS-U1
+      resource: Observation
+      path: code
+      sam: Observation_UnitAllowed
+      params: {}
+      effect: Scoring
+
+    # Plausibility bounds (start as Scoring; set to Informational while tuning if you prefer)
+    - id: OBS-V1
+      resource: Observation
+      path: code
+      sam: Observation_ValueWithinRange
+      params: {}
+      effect: Scoring
+

@@ -1,0 +1,24 @@
+profile:
+  name: Claims-Minimal
+  steps:
+    - id: CLM-1
+      resource: Claim
+      path: item*
+      sam: Attr_IsPopulated
+      params: {}
+      effect: Scoring
+
+    - id: CLM-2
+      resource: Claim
+      path: item*.productOrService
+      sam: Attr_IsPopulated
+      params: {}
+      effect: Scoring
+
+    - id: CLM-3
+      resource: Claim
+      path: item*.productOrService
+      sam: Concept_IsValidMember
+      params:
+        system: CPT
+      effect: Informational

@@ -1,0 +1,50 @@
+# piqi_sam_library.yaml
+sams:
+  - mnemonic: Attr_IsPopulated
+    dimension: Availability.Unpopulated
+    entity_type: SimpleAttribute
+
+  - mnemonic: Attr_IsNumeric
+    dimension: Accuracy.InvalidValue
+    entity_type: SimpleAttribute
+    prerequisite: Attr_IsPopulated
+
+  - mnemonic: Attr_IsDate
+    dimension: Accuracy.InvalidFormat
+    entity_type: SimpleAttribute
+    prerequisite: Attr_IsPopulated
+
+  - mnemonic: Concept_HasCode
+    dimension: Availability.IsPopulated
+    entity_type: CodableConcept
+    prerequisite: Attr_IsPopulated
+
+  - mnemonic: Concept_IsValidMember
+    dimension: Conformity.InvalidMember
+    entity_type: CodableConcept
+    prerequisite: Concept_HasCode
+    params_schema:
+      system: ["LOINC", "CPT"]
+
+  - mnemonic: ObservationValue_IsNumeric
+    dimension: Accuracy.InvalidValue
+    entity_type: ObservationValue
+
+  - mnemonic: RangeValue_IsComplete
+    dimension: Availability.IsComplete
+    entity_type: RangeValue
+
+  - mnemonic: LabResult_ValueIsPlausible
+    dimension: Plausibility.ClinicallyImplausible
+    entity_type: Element
+    prerequisite: Concept_HasCode
+    
+  - mnemonic: Observation_UnitAllowed
+    dimension: Accuracy.UnitMismatch        # feel free to rename to your taxonomy
+    entity_type: Observation
+    prerequisite: null                      # or leave off; SAM code handles SKIPs
+
+  - mnemonic: Observation_ValueWithinRange
+    dimension: Accuracy.Plausibility
+    entity_type: Observation
+    prerequisite: Observation_UnitAllowed   # optional, but nice to chain

@@ -1,0 +1,75 @@
+# /ref/plausibility.yaml  — physiologic plausibility (absolute) bounds
+by_loinc:
+  # --- Metabolic panel / lipids ---
+  "2339-0":       # Glucose [Mass/volume] in Blood
+    units: ["mg/dL"]
+    min: 10
+    max: 2500
+
+  "4548-4":       # HbA1c
+    units: ["%"]
+    min: 0
+    max: 25
+
+  "2093-3":       # Cholesterol
+    units: ["mg/dL"]
+    min: 30
+    max: 2000
+
+  "13457-7":      # LDL Cholesterol
+    units: ["mg/dL"]
+    min: 0
+    max: 1000
+
+  "2085-9":       # HDL Cholesterol
+    units: ["mg/dL"]
+    min: 0
+    max: 200
+
+  "2571-8":       # Triglycerides
+    units: ["mg/dL"]
+    min: 0
+    max: 10000
+
+  # --- Liver enzymes / inflammation ---
+  "1920-8":       # AST
+    units: ["U/L"]
+    min: 0
+    max: 20000     # aligns with absolute upper in table
+
+  "1742-6":       # ALT
+    units: ["U/L"]
+    min: 0
+    max: 10000     # wide physiologic cap (ALT not listed in table; generous)
+
+  "1988-5":       # C-reactive protein
+    units: ["mg/L"]
+    min: 0
+    max: 500       # wide; allows marked inflammation/assay extremes
+
+  # --- Hematology ---
+  "6690-2":       # WBC
+    units: ["10^3/uL", "x10^3/uL", "10*3/uL"]
+    min: 0
+    max: 500       # == 500,000 cells/µL absolute upper in table
+
+  # --- Vitals (ADT) ---
+  "8480-6":       # Systolic blood pressure
+    units: ["mmHg"]
+    min: 50
+    max: 300
+
+  "8867-4":       # Heart rate
+    units: ["/min", "beats/min", "bpm"]
+    min: 0
+    max: 300
+
+  "59408-5":      # Oxygen saturation (SpO2)
+    units: ["%"]
+    min: 30        # absolute lower in table
+    max: 100
+
+  "39156-5":      # Body mass index (BMI)
+    units: ["kg/m2", "kg/m^2"]
+    min: 5
+    max: 100

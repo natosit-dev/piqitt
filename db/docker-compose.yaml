@@ -1,0 +1,57 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    container_name: piqi_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: piqi_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      # Comment init scripts for the first boot to avoid search_path surprises
+      # - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d piqi_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: piqi_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: nat.a.osit@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - "8081:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./pgadmin_data:/var/lib/pgadmin
+
+  hapi:
+    image: hapiproject/hapi:latest
+    container_name: piqi_hapi
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      spring.datasource.url: jdbc:postgresql://postgres:5432/piqi_db
+      spring.datasource.username: admin
+      spring.datasource.password: password
+      spring.datasource.driverClassName: org.postgresql.Driver
+      # Pin the FHIR version explicitly to match US Core later
+      hapi.fhir.fhir_version: R4
+      # Optional but harmless: keep default schema explicit
+      spring.jpa.properties.hibernate.default_schema: public
+
+volumes:
+  db_data:
