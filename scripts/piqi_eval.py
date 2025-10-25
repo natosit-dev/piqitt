@@ -558,12 +558,12 @@ class PIQIEvaluator:
             "weightedNumerator": weighted_num,
             "weightedDenominator": weighted_den,
             "criticalFailureCount": critical_fails,
-           # "status": status,
-           # "values": v,
-           # "valuePreview": _value_preview(v)
+            "details": details,  # include the full SAM evaluations
         }
 
+
     def _mk_detail(self, step: StepSpec, res: Dict[str, Any], value: Any, sam: str, status: str) -> Dict[str, Any]:
+        sam_def = self.sam_defs.get(sam, SamSpec(sam, "", ""))
         return {
             "stepId": step.id,
             "resourceType": res.get("resourceType"),
@@ -571,7 +571,13 @@ class PIQIEvaluator:
             "path": step.path,
             "sam": sam,
             "status": status,  # PASS | FAIL | SKIP
-            "dimension": self.sam_defs.get(sam, SamSpec(sam, "", "")).dimension,
+            "dimension": sam_def.dimension,
+            "mnemonic": sam_def.mnemonic,
+            "entity_type": sam_def.entity_type,
+            "prerequisite": sam_def.prereq,
+            "params_schema": sam_def.params_schema,
+            "severity": "critical" if step.critical else "standard",
+            "values": value,
             "valuePreview": _value_preview(value),
         }
 

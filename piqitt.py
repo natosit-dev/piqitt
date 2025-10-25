@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import json, io, zipfile
@@ -7,9 +6,9 @@ from pathlib import Path
 from scripts.piqi_eval import PIQIEvaluator, load_loinc_codes_from_csv, load_cpt_codes_from_csv, load_plausibility_yaml
 from scripts.fhir_convert_backend import split_messages, convert_message_to_bundle, detect_message_type
 
-st.set_page_config(page_title="HL7 v2 → FHIR Converter", layout="wide")
-st.title("HL7 v2 → FHIR Converter")
-st.caption("Upload HL7 v2 files (ADT / ORU / DFT). We'll split on MSH and convert each message to a FHIR Bundle.")
+st.set_page_config(page_title="HL7 v2 → FHIR Converter + PIQI Scorecard", layout="wide")
+st.title("HL7 v2 → FHIR Converter + PIQI Scorecard")
+st.caption("Upload HL7 v2 files (ADT / ORU / DFT). We'll split on MSH, convert each message to a FHIR Bundle, and score with PIQI.")
 
 with st.sidebar:
     st.header("Export Options")
@@ -21,11 +20,9 @@ with st.sidebar:
     sam_lib_path = st.text_input("SAM Library YAML", "piqi_sam_library.yaml")
     clinical_profile_path = st.text_input("Clinical Profile YAML", "profiles/profile_clinical_minimal.yaml")
     claims_profile_path = st.text_input("Claims Profile YAML", "profiles/profile_claims_minimal.yaml")
-    # in fhir_convert_app.py (sidebar)
     loinc_csv = st.text_input("LOINC file (CSV/TSV)", value="ref/loinc.csv")
     cpt_csv   = st.text_input("CPT file (CSV)", value="ref/cpt.csv")
     plaus_yaml = st.text_input("Plausibility YAML", value="ref/plausibility.yaml")
-
 
 piqi_rows = []
 piqi_results_by_file = {}
@@ -55,10 +52,10 @@ if uploaded_files:
 
 if summary:
     st.subheader("Parsed Messages")
-    st.dataframe(pd.DataFrame(summary), width='stretch')
-    st.subheader("Download")
+    st.dataframe(pd.DataFrame(summary), use_container_width=True)
+
+    st.subheader("Bundle Downloads")
     if as_ndjson:
-        # One NDJSON per input file, packaged into a ZIP
         if st.button("Build NDJSON ZIP"):
             buf = io.BytesIO()
             with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
@@ -76,6 +73,8 @@ if summary:
                         data = json.dumps(b, indent=2) if pretty_json else json.dumps(b)
                         zf.writestr(f"{base}/bundle_{idx:03d}.json", data.encode("utf-8"))
             st.download_button("Download Bundles ZIP", data=buf.getvalue(), file_name="fhir_bundles.zip")
+
+# ---- PIQI evaluation ----
 if summary and do_piqi:
     # Load value sets once
     loinc_codes = load_loinc_codes_from_csv(loinc_csv) if loinc_csv else set()
@@ -105,22 +104,53 @@ if summary and do_piqi:
             file_results.append(res)
             piqi_rows.append({
                 "file": fname,
-                "messageId": res["messageId"],
-                "sendingFacility": res["sendingFacility"],
+                "messageId": res.get("messageId"),
+                "sendingFacility": res.get("sendingFacility"),
                 "profile": prof,
-                "piqiIndex": res["piqiIndex"],
-                "den": res["denominator"],
-                "num": res["numerator"],
-                "criticalFails": res["criticalFailureCount"],
-                #"status": res["details"],
+                "piqiIndex": res.get("piqiIndex"),
+                "piqiWeightedIndex": res.get("piqiWeightedIndex"),
+                "denominator": res.get("denominator"),
+                "numerator": res.get("numerator"),
+                "criticalFails": res.get("criticalFailureCount"),
             })
         piqi_results_by_file[fname] = file_results
 
 if piqi_rows:
-    st.subheader("PIQI Scorecard (per message)")
-    st.dataframe(pd.DataFrame(piqi_rows), width='stretch')
+    st.subheader("PIQI Scorecard — Per Message")
+    df = pd.DataFrame(piqi_rows)
+    st.dataframe(df, use_container_width=True)
 
-    # Optional: download verbose PIQI results JSON
+    # ---- Aggregations (Scorecard view) ----
+    st.subheader("PIQI Scorecard — Summary")
+
+    def _agg_mean(cols):
+        return {
+            "count": ("piqiIndex", "count"),
+            "mean_piqi": ("piqiIndex", "mean"),
+            "mean_critical_fails": ("criticalFails", "mean"),
+        }
+
+    # by Profile
+    by_profile = df.groupby("profile").agg(**_agg_mean(df)).reset_index()
+    by_profile["mean_piqi"] = by_profile["mean_piqi"].round(2)
+    by_profile["mean_critical_fails"] = by_profile["mean_critical_fails"].round(2)
+    st.markdown("**By Profile**")
+    st.dataframe(by_profile, use_container_width=True)
+
+    # by File
+    by_file = df.groupby("file").agg(**_agg_mean(df)).reset_index()
+    by_file["mean_piqi"] = by_file["mean_piqi"].round(2)
+    by_file["mean_critical_fails"] = by_file["mean_critical_fails"].round(2)
+    st.markdown("**By File**")
+    st.dataframe(by_file, use_container_width=True)
+
+    # by Sending Facility (if present)
+    if "sendingFacility" in df.columns and df["sendingFacility"].notna().any():
+        by_fac = df.groupby("sendingFacility").agg(**_agg_mean(df)).reset_index()
+        by_fac["mean_piqi"] = by_fac["mean_piqi"].round(2)
+        by_fac["mean_critical_fails"] = by_fac["mean_critical_fails"].round(2)
+        st.markdown("**By Sending Facility**")
+        st.dataframe(by_fac, use_container_width=True)
     if st.button("Download PIQI Results (JSON)"):
         import io, zipfile, json
         buf = io.BytesIO()
@@ -128,5 +158,65 @@ if piqi_rows:
             for fname, rows in piqi_results_by_file.items():
                 zf.writestr(Path(fname).with_suffix(".piqi.json").name, json.dumps(rows, indent=2).encode("utf-8"))
         st.download_button("Download PIQI ZIP", data=buf.getvalue(), file_name="piqi_results.zip")
-st.markdown("---")
-st.write("Ready to extend to additional standard IG or custom mappings")
+
+    # ---- Quick charts ----
+    with st.expander("Charts (quick look)"):
+        st.bar_chart(by_profile.set_index("profile")["mean_piqi"])
+        st.bar_chart(by_file.set_index("file")["mean_piqi"])
+
+    # ---- Exports (Scorecard) ----
+    st.markdown("**Scorecard Exports**")
+
+    # CSV
+    csv_buf = io.StringIO()
+    pd.concat(
+        {
+            "by_profile": by_profile,
+            "by_file": by_file,
+            **({"by_sendingFacility": by_fac} if "by_fac" in locals() else {})
+        }
+    ).to_csv(csv_buf)
+    st.download_button("Download Scorecard (CSV)", data=csv_buf.getvalue().encode("utf-8"), file_name="piqi_scorecard.csv")
+
+    # Markdown (similar to CLI tool)
+    md_lines = []
+    total_msgs = len(df)
+    md_lines.append(f"# PIQI Summary\n")
+    md_lines.append(f"Total messages: **{total_msgs}**\n")
+
+    def _mk_md(tbl, title):
+        if tbl.empty:
+            return
+        md_lines.append(f"## {title}\n")
+        cols = ["count", "mean_piqi", "mean_critical_fails"]
+        header = f"| {tbl.columns[0]} | Count | Mean PIQI | Mean Critical Fails |"
+        sep = "|---|---:|---:|---:|"
+        md_lines.append(header)
+        md_lines.append(sep)
+        for _, row in tbl.iterrows():
+            md_lines.append(f"| {row.iloc[0]} | {int(row['count'])} | {row['mean_piqi']:.2f} | {row['mean_critical_fails']:.2f} |")
+        md_lines.append("")
+
+    _mk_md(by_profile, "By Profile")
+    _mk_md(by_file, "By File")
+    if "by_fac" in locals():
+        _mk_md(by_fac, "By Sending Facility")
+
+    md_bytes = "\n".join(md_lines).encode("utf-8")
+    st.download_button("Download Scorecard (Markdown)", data=md_bytes, file_name="piqi_summary.md")
+
+    # ---- Drill-down (per file) ----
+    st.subheader("Drill-down (Per File)")
+    for fname, rows in piqi_results_by_file.items():
+        with st.expander(f"{fname} — {len(rows)} messages"):
+            st.dataframe(pd.DataFrame([{
+                "messageId": r.get("messageId"),
+                "profile": next((x["profile"] for x in df[df["messageId"]==r.get("messageId")].to_dict("records")), None),
+                "piqiIndex": r.get("piqiIndex"),
+                "criticalFails": r.get("criticalFailureCount"),
+                "sendingFacility": r.get("sendingFacility"),
+            } for r in rows]), use_container_width=True)
+
+            if st.checkbox(f"Show raw JSON for {fname}", key=f"rawjson-{fname}"):
+                st.code(json.dumps(rows, indent=2))
+    

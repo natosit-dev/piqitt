@@ -9,7 +9,7 @@ profile:
       params: {}
       effect: Scoring
       weight: 1.0
-      critical: false
+      critical: true
 
     # Observation code present and valid LOINC
     - id: OBS-1
@@ -18,6 +18,7 @@ profile:
       sam: Concept_HasCode
       params: {}
       effect: Scoring
+      critical: true
 
     - id: OBS-2
       resource: Observation
@@ -58,6 +59,7 @@ profile:
       sam: Observation_UnitAllowed
       params: {}
       effect: Scoring
+
 
     # Plausibility bounds (start as Scoring; set to Informational while tuning if you prefer)
     - id: OBS-V1

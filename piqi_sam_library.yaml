@@ -3,6 +3,7 @@ sams:
   - mnemonic: Attr_IsPopulated
     dimension: Availability.Unpopulated
     entity_type: SimpleAttribute
+    severity: critical
 
   - mnemonic: Attr_IsNumeric
     dimension: Accuracy.InvalidValue
@@ -29,6 +30,7 @@ sams:
   - mnemonic: ObservationValue_IsNumeric
     dimension: Accuracy.InvalidValue
     entity_type: ObservationValue
+    severity: critical
 
   - mnemonic: RangeValue_IsComplete
     dimension: Availability.IsComplete
