@@ -55,9 +55,12 @@ def _distribution_comparison(source: Counter, target: Counter) -> Dict[str, Any]
             "targetPct": round(tgt_pct, 4),
             "deltaPercentagePoints": round(delta, 4),
         })
+    retention = (100.0 * tgt_total / src_total) if src_total else (100.0 if tgt_total == 0 else None)
     return {
         "sourceTotal": src_total,
         "targetTotal": tgt_total,
+        "countDelta": tgt_total - src_total,
+        "retentionRatePct": round(retention, 4) if retention is not None else None,
         "maxAbsoluteDeltaPercentagePoints": round(max_abs_delta, 4),
         "categories": rows,
     }
@@ -153,7 +156,14 @@ def markdown(summary: Dict[str, Any]) -> str:
     for name, comparison in (summary.get("distributionComparisons") or {}).items():
         lines.append(f"### {name}")
         lines.append("")
-        lines.append(f"Max absolute delta: **{comparison.get('maxAbsoluteDeltaPercentagePoints', 0):.4f} percentage points**")
+        retention = comparison.get("retentionRatePct")
+        retention_text = "n/a" if retention is None else f"{retention:.4f}%"
+        lines.append(
+            f"Source count: **{comparison.get('sourceTotal', 0)}** · "
+            f"Target count: **{comparison.get('targetTotal', 0)}** · "
+            f"Retention: **{retention_text}** · "
+            f"Max absolute distribution delta: **{comparison.get('maxAbsoluteDeltaPercentagePoints', 0):.4f} percentage points**"
+        )
         lines.append("")
         lines.append("| Category | Source Count | Target Count | Source % | Target % | Delta pp |")
         lines.append("|---|---:|---:|---:|---:|---:|")
