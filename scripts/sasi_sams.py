@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, asdict
 from decimal import Decimal, InvalidOperation
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 import re
 
 
@@ -61,7 +61,9 @@ def normalize_code_system(system: Any) -> Optional[str]:
         "HTTP://LOINC.ORG": "LOINC",
         "URN:OID:2.16.840.1.113883.6.1": "LOINC",
         "CPT": "CPT",
+        "URN:HL7V2:CPT": "CPT",
         "HL7": "HL7",
+        "URN:HL7V2:HL7": "HL7",
         "SCT": "SNOMED_CT",
         "SNOMED": "SNOMED_CT",
         "SNOMEDCT": "SNOMED_CT",
@@ -71,11 +73,10 @@ def normalize_code_system(system: Any) -> Optional[str]:
 
 
 def normalize_timestamp(value: Any) -> Optional[str]:
-    """Canonicalize common HL7 TS and ISO-ish timestamps for equality tests.
+    """Canonicalize common HL7 TS and ISO-ish timestamps without inventing semantics.
 
-    This intentionally does not infer a timezone. PIQITT's current converter can
-    emit zone-less FHIR dateTimes, so SaSI compares the represented local clock
-    value instead of manufacturing timezone semantics that were not present.
+    Zone-less values remain zone-less. Explicit source offsets remain explicit so
+    SaSI can detect a converter that silently drops timezone information.
     """
     if value is None:
         return None
@@ -84,25 +85,38 @@ def normalize_timestamp(value: Any) -> Optional[str]:
         return None
     text = text.split("^", 1)[0].strip()
 
-    digits = re.match(r"^(\d{4})(\d{2})(\d{2})(\d{2})?(\d{2})?(\d{2})?", text)
-    if digits:
-        y, m, d, hh, mm, ss = digits.groups()
+    hl7 = re.fullmatch(
+        r"(\d{4})(\d{2})(\d{2})(?:(\d{2})(?:(\d{2})(?:(\d{2})(?:\.\d+)?)?)?)?([+-]\d{4})?",
+        text,
+    )
+    if hl7:
+        y, m, d, hh, mm, ss, offset = hl7.groups()
         base = f"{y}-{m}-{d}"
         if hh is None:
             return base
-        mm = mm or "00"
-        ss = ss or "00"
-        return f"{base}T{hh}:{mm}:{ss}"
+        value_out = f"{base}T{hh}:{mm or '00'}:{ss or '00'}"
+        if offset:
+            value_out += f"{offset[:3]}:{offset[3:]}"
+        return value_out
 
     iso = text.replace(" ", "T")
-    iso = re.sub(r"Z$", "", iso, flags=re.IGNORECASE)
-    iso = re.sub(r"([+-]\d{2}:?\d{2})$", "", iso)
+    if iso.endswith(("Z", "z")):
+        zone = "Z"
+        iso = iso[:-1]
+    else:
+        zone_match = re.search(r"([+-]\d{2}:?\d{2})$", iso)
+        zone = zone_match.group(1) if zone_match else ""
+        if zone_match:
+            iso = iso[: zone_match.start()]
+            if len(zone) == 5 and ":" not in zone:
+                zone = zone[:3] + ":" + zone[3:]
+
     if re.fullmatch(r"\d{4}-\d{2}-\d{2}", iso):
-        return iso
+        return iso + zone
     m = re.match(r"^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?", iso)
     if m:
         date, hh, mm, ss = m.groups()
-        return f"{date}T{hh}:{mm}:{ss or '00'}"
+        return f"{date}T{hh}:{mm}:{ss or '00'}{zone}"
     return normalize_text(text)
 
 
