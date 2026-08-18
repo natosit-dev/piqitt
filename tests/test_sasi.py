@@ -124,3 +124,10 @@ def test_hl7v2_code_system_wrapper_is_semantically_equivalent():
 def test_timezone_loss_is_not_canonicalized_away():
     assert normalize_timestamp("20260818120000-0400") == "2026-08-18T12:00:00-04:00"
     assert normalize_timestamp("20260818120000-0400") != normalize_timestamp("2026-08-18T12:00:00")
+
+
+def test_current_converter_timezone_drop_is_exposed():
+    raw = "\r".join([msh("ORU^R01"), pid(), pv1(), obx(when="20260818120000-0400")])
+    bundle, msg_type = fhir.convert_message_to_bundle(raw)
+    result = analyzer().evaluate(raw, bundle, msg_type)
+    assert by_sam(result)["XFORM_EffectiveTimePreserved"]["status"] == "FAIL"
