@@ -7,6 +7,7 @@ sys.path.insert(0, str(ROOT))
 from scripts import fhir_convert_backend as fhir
 from scripts.sasi_analyzer import SaSIAnalyzer
 from scripts.sasi_summary import summarize
+from scripts.sasi_sams import normalize_code_system
 
 
 def segment(name, fields):
@@ -112,3 +113,9 @@ def test_summary_aggregates_sam_statuses():
     assert summary["messages"] == 2
     assert summary["bySAM"]["XFORM_MessageTypeSupported"]["PASS"] == 1
     assert summary["bySAM"]["XFORM_MessageTypeSupported"]["FAIL"] == 1
+    assert summary["distributionComparisons"]["observationCodes"]["retentionRatePct"] == 50.0
+
+
+def test_hl7v2_code_system_wrapper_is_semantically_equivalent():
+    assert normalize_code_system("SCT") == normalize_code_system("urn:hl7v2:SCT")
+    assert normalize_code_system("CPT") == normalize_code_system("urn:hl7v2:CPT")
