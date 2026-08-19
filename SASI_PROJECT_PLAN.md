@@ -4,7 +4,7 @@
 **Project:** SaSI ("sassy")  
 **Repository:** `natosit-dev/piqitt`  
 **Branch:** `sasi`  
-**Status:** MVP implemented and initial corpus validated  
+**Status:** MVP operational — good enough for now  
 **Updated:** 2026-08-19
 
 ---
@@ -59,6 +59,12 @@
 ## Prompt 16
 > Update the project plan with what we've completed so far. Include prompts at the top, decision log at the bottom if it's not there already.
 
+## Prompt 17
+> I feel like we're at the "good enough" phase with this now?
+
+## Prompt 18
+> Let's update the documentation with some of these phase 2 ideas, but intentionally say this is good enough for now. We're building primitives, not polished products
+
 ---
 
 # 1. Purpose
@@ -85,7 +91,29 @@ SaSI remains separate from PIQI because data quality and transformation fidelity
 
 ---
 
-# 2. Architecture
+# 2. Project Philosophy
+
+SaSI is intentionally a **primitive**, not a polished product.
+
+The goal is not to finish every possible feature, UI, statistical method, or interoperability edge case. The goal is to create a reusable measuring instrument that can expose transformation behavior clearly enough to support later work.
+
+Fancy version:
+
+> SaSI is a composable interoperability-analysis primitive.
+
+Nat version:
+
+> **Build the useful little machine. Don't spend three weeks making the useful little machine wear a tuxedo.**
+
+The current implementation has crossed the threshold from prototype to usable primitive.
+
+**This is good enough for now.**
+
+Further work should be pulled by real findings, Connectathon needs, or reuse in another project — not by a desire to make SaSI feel "finished."
+
+---
+
+# 3. Architecture
 
 ```text
 HL7 v2
@@ -115,7 +143,7 @@ MediLacra is a controlled synthetic corpus for testing, not a SaSI dependency.
 
 ---
 
-# 3. V1 Evaluation Model
+# 4. V1 Evaluation Model
 
 SaSI reuses the SAM pattern but keeps its own SAM library and profile.
 
@@ -148,7 +176,7 @@ XFORM_ReferencesResolve
 
 ---
 
-# 4. Source and Target Inventories
+# 5. Source and Target Inventories
 
 ## Source semantic inventory
 
@@ -183,7 +211,7 @@ The source and target inventories are the comparison substrate beneath the SAMs.
 
 ---
 
-# 5. Canonicalization
+# 6. Canonicalization
 
 SaSI compares meaning rather than byte equality.
 
@@ -211,7 +239,7 @@ Nat version:
 
 ---
 
-# 6. Implementation Progress
+# 7. Implementation Progress
 
 ## Phase 0 — Freeze baseline ✅ COMPLETE
 
@@ -322,7 +350,7 @@ First real SaSI corpus:
 
 ---
 
-# 7. Initial Corpus Results
+# 8. Initial Corpus Results
 
 ## Structural results
 
@@ -365,7 +393,7 @@ retention as coded FHIR values: 0%
 
 ---
 
-# 8. What the First Findings Mean
+# 9. What the First Findings Mean
 
 ## ORM fallback
 
@@ -397,7 +425,7 @@ Nat version:
 
 > **The value may still be readable, but the machine-readable structure got flattened.**
 
-This distinction is important. SaSI should tell the difference between:
+This distinction is important. SaSI should conceptually distinguish:
 
 ```text
 preserved
@@ -406,11 +434,11 @@ degraded
 lost
 ```
 
-Even if V1 continues using PASS / FAIL / SKIP internally.
+V1 can continue using PASS / FAIL / SKIP internally while carrying richer meaning in evidence and findings.
 
 ---
 
-# 9. PIQI Terminology Coverage vs SaSI Fidelity
+# 10. PIQI Terminology Coverage vs SaSI Fidelity
 
 These must stay separate.
 
@@ -434,7 +462,7 @@ Nat version:
 
 ---
 
-# 10. Statistical Integrity Rule Learned During Testing
+# 11. Statistical Integrity Rule Learned During Testing
 
 SaSI must report **count retention and distribution drift separately**.
 
@@ -459,7 +487,7 @@ This is now implemented.
 
 ---
 
-# 11. PIQI + SaSI Interpretation
+# 12. PIQI + SaSI Interpretation
 
 | PIQI | SaSI | Meaning |
 |---|---|---|
@@ -483,7 +511,181 @@ Nat version:
 
 ---
 
-# 12. V1 Non-Goals
+# 13. Good Enough Boundary
+
+SaSI V1 has reached the intended stopping point.
+
+It can:
+
+- observe the existing PIQITT transform
+- compare source and target structure
+- detect unsupported transformation paths
+- detect cardinality changes
+- compare codes, values, units, and timestamps
+- verify FHIR reference resolution
+- report population retention and distribution drift
+- produce durable findings from real synthetic corpora
+
+That is enough to make SaSI useful as a primitive.
+
+We are **not** trying to make it a polished standalone product right now.
+
+No additional work is required simply to make the repo look more complete.
+
+Future work should happen only when one of these is true:
+
+1. a finding cannot be explained with the current instrument
+2. a Connectathon scenario requires another capability
+3. another MediLacra/PIQITT experiment needs a reusable primitive
+4. a repeated manual analysis is worth automating
+
+Nat version:
+
+> **Stop when the primitive is useful. Build the next layer when reality asks for it.**
+
+---
+
+# 14. Parked Phase 2 Ideas
+
+These are intentionally **not commitments**. They are extension points we now understand well enough to preserve for later.
+
+## 14.1 Richer semantic outcome classification
+
+Possible conceptual states:
+
+```text
+PRESERVED
+NORMALIZED
+DEGRADED
+LOST
+SKIP
+```
+
+Use case: distinguish CWE → readable text from CWE → no surviving value.
+
+Do not implement unless PASS / FAIL / SKIP starts obscuring real findings.
+
+## 14.2 Explicit CWE / CNE transformation support
+
+PIQITT could eventually preserve coded CWE/CNE values as FHIR `valueCodeableConcept` when code/system are present and retain human-readable text where needed.
+
+This is primarily a PIQITT converter enhancement, not a SaSI requirement.
+
+SaSI should measure the current behavior before and after any such change.
+
+## 14.3 Transformation coverage metrics
+
+Possible measures:
+
+- supported message-family rate
+- evaluated semantic opportunities
+- unsupported semantic opportunities
+- transformation coverage percentage
+
+This would make fallback/skip-heavy transformations easier to summarize.
+
+## 14.4 Cross-message integrity
+
+Current SaSI evaluates one transformation event at a time.
+
+Later, it could compare relationships across messages:
+
+- same patient identity across ADT/ORU/DFT
+- same encounter context
+- placer/filler order continuity
+- repeated demographic consistency
+- expected message-family cardinalities
+
+MediLacra could provide an optional truth sidecar for this without requiring a full Reality Model.
+
+## 14.5 More statistical measures
+
+Only add when simple retention + percentage-point drift are insufficient.
+
+Possible methods:
+
+- total variation distance
+- Jensen-Shannon divergence
+- confidence intervals
+- chi-square comparisons
+- seed-to-seed drift thresholds
+
+No fancy statistics for the sake of fancy statistics.
+
+## 14.6 Scale and performance characterization
+
+Potential future runs:
+
+```text
+10K
+100K
+500K
+1M entities
+```
+
+Potential measurements:
+
+- SaSI messages/second
+- memory behavior
+- output size
+- structural failure-rate stability
+- distribution stability by scale and seed
+
+This becomes useful if SaSI itself needs performance characterization or Connectathon demonstration at scale.
+
+## 14.7 Streamlit / UI integration
+
+Could add SaSI beside PIQI in the existing UI with:
+
+- per-message structural findings
+- PIQI/SaSI comparison
+- summary tables
+- downloadable findings
+
+Parked because the CLI + Markdown/JSON output already solves the current need.
+
+## 14.8 Findings catalog evolution
+
+The `findings/` folder can become a lightweight evidence corpus:
+
+```text
+findings/
+  YYYY-MM-DD_short_finding_name.md
+```
+
+Each finding should separate:
+
+```text
+observed
+inferred
+possible explanation
+next test
+```
+
+This is likely more valuable than building a findings database right now.
+
+## 14.9 Regression comparison
+
+Later SaSI runs could compare results before and after converter changes:
+
+- SAM failure-rate drift
+- retention changes
+- new/lost categories
+- message-family coverage changes
+
+Useful when PIQITT begins fixing findings that SaSI exposed.
+
+## 14.10 Optional truth sidecar
+
+MediLacra could eventually emit a tiny truth record containing identities, relationships, expected counts, and times.
+
+That would allow SaSI to test not only HL7 → FHIR preservation but also whether the HL7 representation itself preserved generator truth.
+
+This remains optional and should not become a full Reality Model project by accident.
+
+---
+
+# 15. V1 Non-Goals
 
 Still out of scope:
 
@@ -498,14 +700,17 @@ Still out of scope:
 - automated converter repair
 - contest UI integration
 - IRIS integration
+- product-grade packaging
+- product-grade UX
+- feature completeness for its own sake
 
-V1 remains a measuring instrument.
+V1 is a measuring primitive.
 
 ---
 
-# 13. MVP Status
+# 16. MVP Status
 
-The original MVP definition is now met:
+The original MVP definition is met:
 
 1. raw HL7 can be transformed normally by PIQITT
 2. SaSI inventories source and target representations
@@ -519,22 +724,31 @@ The original MVP definition is now met:
 10. real transformation-loss/degradation cases are exposed
 11. existing PIQI behavior remains unchanged
 
-**SaSI V1 MVP is operational.**
+**SaSI V1 MVP is operational and intentionally considered good enough for now.**
 
 ---
 
-# 14. Next Work
+# 17. Current Next Step
 
-Do not repair the converter yet.
+There is no mandatory implementation next step.
 
-Next observational steps:
+The immediate mode is:
+
+```text
+use SaSI
+collect findings
+preserve findings
+extend only when needed
+```
+
+If work resumes, the highest-value observational follow-up remains the CWE source→target inspection:
 
 1. run representative CWE messages with inventories enabled
 2. inspect exactly where the CWE source value lands in the FHIR Observation
-3. determine whether the value is preserved as text, partially preserved, or truly lost
-4. decide whether SaSI should add a richer semantic classification such as `DEGRADED`, or keep PASS / FAIL / SKIP and carry degradation in evidence/meaning
-5. keep PIQI terminology-reference coverage findings separate from SaSI transformation-fidelity findings
-6. only after the CWE behavior is fully described, decide whether PIQITT should add explicit CWE/CNE coded-value conversion support
+3. classify the result as preserved, normalized, degraded, or lost
+4. decide whether a converter change is warranted
+
+But this is intentionally parked until there is a reason to continue.
 
 ---
 
@@ -580,32 +794,45 @@ Next observational steps:
 **Decision:** Report interpretable counts, rates, dimensions, and evidence instead.  
 **Status:** Implemented.
 
-## D011 — Do not fix the converter while building the measuring instrument
-**Decision:** Existing transformation behavior remains unchanged during V1 instrumentation.  
-**Status:** Maintained.
-
-## D012 — Canonicalize before comparison
-**Decision:** Compare semantic equivalence rather than literal strings without hiding meaningful loss.  
+## D011 — Do not fix the converter while building SaSI
+**Decision:** Preserve current PIQITT transformation behavior during instrumentation.  
 **Status:** Implemented.
 
-## D013 — Ten structural SAMs for V1
-**Decision:** Start small enough to understand every result.  
-**Status:** Implemented and validated.
-
-## D014 — Count retention and distribution drift are separate measures
-**Decision:** Statistical summaries report both.  
-**Reason:** Uniform loss can preserve percentages while destroying records.  
+## D012 — Canonicalize semantic equivalents
+**Decision:** Compare equivalent representations rather than raw strings, while preserving real semantic losses such as timezone stripping.  
 **Status:** Implemented.
 
-## D015 — Treat CWE behavior as degradation until inspected
-**Decision:** Do not call the 600 coded values simply "lost" yet. The confirmed result is that they were not retained as FHIR `valueCodeableConcept`.  
-**Reason:** CWE intentionally supports coded-or-text reality; the resulting human-readable value may still exist in a less structured representation.  
-**Status:** Accepted; detailed inspection pending.
+## D013 — Start with ten structural SAMs
+**Decision:** Keep V1 deliberately small.  
+**Status:** Implemented.
 
-## D016 — Keep terminology coverage separate from transformation fidelity
-**Decision:** PIQI sample-reference limitations and SaSI transformation findings are different failure surfaces.  
+## D014 — Report retention and distribution drift separately
+**Decision:** Statistical integrity must not let unchanged percentages hide uniform record loss.  
+**Status:** Implemented.
+
+## D015 — Preserve findings in the repository
+**Decision:** Use `findings/` as a durable project evidence log.  
+**Status:** Implemented.
+
+## D016 — Separate PIQI terminology coverage from SaSI fidelity
+**Decision:** Incomplete CPT/ICD/LOINC validation samples may affect PIQI but do not explain SaSI transformation findings.  
 **Status:** Accepted.
 
-## D017 — Findings are first-class project artifacts
-**Decision:** Preserve observed results in `findings/`.  
-**Status:** Implemented.
+## D017 — Treat CWE result as possible semantic degradation, not automatic total loss
+**Decision:** A coded value flattened to text is different from a value disappearing entirely.  
+**Status:** Accepted; deeper inspection parked.
+
+## D018 — SaSI V1 is good enough for now
+**Decision:** Stop active feature development after the operational MVP and first real corpus findings.  
+**Reason:** The primitive is already useful. Additional work should be driven by real needs rather than product-completion pressure.  
+**Status:** Accepted.
+
+## D019 — Build primitives, not polished products
+**Decision:** Prioritize small reusable capabilities, clear evidence, and composability over feature completeness, UI polish, packaging, or standalone-product maturity.  
+**Reason:** SaSI's value is as a reusable measurement primitive inside broader interoperability experiments.  
+**Status:** Accepted.
+
+## D020 — Phase 2 is a parking lot, not a roadmap commitment
+**Decision:** Preserve known extension ideas in documentation without treating them as required next work.  
+**Reason:** Documenting the next abstraction is useful; building it before reality demands it is not.  
+**Status:** Accepted.
