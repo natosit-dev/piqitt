@@ -1,0 +1,40 @@
+sams:
+  - mnemonic: XFORM_MessageTypeSupported
+    dimension: Structural.Support
+    description: Checks whether PIQITT has an explicit converter for the source message family.
+
+  - mnemonic: XFORM_PatientPreserved
+    dimension: Structural.SemanticRetention
+    description: Checks that a source PID patient and identifier survive as a FHIR Patient.
+
+  - mnemonic: XFORM_EncounterPreserved
+    dimension: Structural.SemanticRetention
+    description: Checks that a source PV1 encounter and class survive as a FHIR Encounter.
+
+  - mnemonic: XFORM_OBXCardinalityPreserved
+    dimension: Structural.Cardinality
+    description: Compares source OBX count with generated FHIR Observation count.
+
+  - mnemonic: XFORM_FT1CardinalityPreserved
+    dimension: Structural.Cardinality
+    description: Compares source FT1 count with generated FHIR Claim count.
+
+  - mnemonic: XFORM_CodePreserved
+    dimension: Structural.Terminology
+    description: Checks semantic preservation of OBX code and code system after canonicalization.
+
+  - mnemonic: XFORM_ValuePreserved
+    dimension: Structural.Value
+    description: Checks preservation of comparable OBX result values and value types.
+
+  - mnemonic: XFORM_UnitPreserved
+    dimension: Structural.Unit
+    description: Checks preservation of OBX measurement units.
+
+  - mnemonic: XFORM_EffectiveTimePreserved
+    dimension: Structural.Temporal
+    description: Checks preservation of OBX effective time after canonicalization.
+
+  - mnemonic: XFORM_ReferencesResolve
+    dimension: Structural.ReferentialIntegrity
+    description: Checks that relative FHIR references resolve to resources in the generated Bundle.

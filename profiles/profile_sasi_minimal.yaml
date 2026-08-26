@@ -1,0 +1,54 @@
+profile:
+  name: SaSI-Minimal
+  steps:
+    - id: XFORM-1
+      sam: XFORM_MessageTypeSupported
+      source_path: MSH-9
+      target_path: conversion route
+      params:
+        supported_prefixes: ["ADT^", "ORU^", "DFT^"]
+
+    - id: XFORM-2
+      sam: XFORM_PatientPreserved
+      source_path: PID
+      target_path: Patient
+
+    - id: XFORM-3
+      sam: XFORM_EncounterPreserved
+      source_path: PV1
+      target_path: Encounter
+
+    - id: XFORM-4
+      sam: XFORM_OBXCardinalityPreserved
+      source_path: OBX[*]
+      target_path: Observation[*]
+
+    - id: XFORM-5
+      sam: XFORM_FT1CardinalityPreserved
+      source_path: FT1[*]
+      target_path: Claim[*]
+
+    - id: XFORM-6
+      sam: XFORM_CodePreserved
+      source_path: OBX-3
+      target_path: Observation.code
+
+    - id: XFORM-7
+      sam: XFORM_ValuePreserved
+      source_path: OBX-5
+      target_path: Observation.value[x]
+
+    - id: XFORM-8
+      sam: XFORM_UnitPreserved
+      source_path: OBX-6
+      target_path: Observation.valueQuantity.unit
+
+    - id: XFORM-9
+      sam: XFORM_EffectiveTimePreserved
+      source_path: OBX-14
+      target_path: Observation.effectiveDateTime
+
+    - id: XFORM-10
+      sam: XFORM_ReferencesResolve
+      source_path: source relationships
+      target_path: Reference.reference
