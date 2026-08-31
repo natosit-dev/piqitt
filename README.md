@@ -4,7 +4,7 @@ PIQI Transformation Tool (PIQITT): **HL7 v2 → FHIR → PIQI scorecard testing*
 
 PIQITT converts HL7 v2 messages into simplified FHIR Bundles and evaluates those Bundles using the PIQI (Patient Information Quality Improvement) framework.
 
-The `WAP_AS` branch — **Write-Audit-Public at Scale** — adds a backend execution path for large HL7 files and folders so bulk workloads do not have to pass through the Streamlit upload widget.
+The `WAP_AS` branch — **Write-Audit-Publish at Scale** — adds a backend execution path for large HL7 files and folders so bulk workloads do not have to pass through the Streamlit upload widget.
 
 ## Goals
 
@@ -213,7 +213,7 @@ The backend path is resolved on the machine running PIQITT.
 The same backend runner can be invoked without Streamlit:
 
 ```powershell
-python scripts/wap_cli.py "C:\path\to\hl7_folder"
+python scripts/wap_cli.py "C:\\path\\to\\hl7_folder"
 ```
 
 Use `python scripts/wap_cli.py --help` for available options.
