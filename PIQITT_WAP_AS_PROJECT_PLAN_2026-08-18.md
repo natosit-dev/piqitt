@@ -1,5 +1,5 @@
 # PIQITT WAP_AS Project Plan
-## Write-Audit-Public at Scale
+## Write-Audit-Publish at Scale
 
 **Branch:** `WAP_AS`  
 **Repository:** `natosit-dev/piqitt`  
@@ -92,7 +92,7 @@ This became the basis of WAP_AS.
 
 ### 7. Branch decision
 
-> "Let's take the current branch we have working and copy it to a new branch. Let's call it... WAP_AS (write-audit-public at scale)"
+> "Let's take the current branch we have working and copy it to a new branch. Let's call it... WAP_AS (write-audit-publish at scale)"
 
 The `WAP_AS` branch exists to preserve the working PIQITT baseline while adding scale-oriented ingestion, execution, and audit infrastructure.
 
