@@ -1,0 +1,140 @@
+{
+  "name": "PIQITT FHIR -> PAT_CLINICAL_V1 bridge",
+  "version": "0.1",
+  "modelMnemonic": "PAT_CLINICAL_V1",
+  "status": "experimental",
+  "notes": [
+    "This file is PIQITT adapter configuration, not PIQI Alliance reference content.",
+    "It keeps FHIR extraction separate from the official Evaluation Rubric so the rubric can remain unchanged.",
+    "Only direct, high-confidence mappings are included. Unsupported model entities remain unbound rather than being guessed."
+  ],
+  "bindings": [
+    {
+      "entity": "DEM_DOB",
+      "resource": "Patient",
+      "paths": ["birthDate"]
+    },
+    {
+      "entity": "DEM_LANG",
+      "resource": "Patient",
+      "paths": ["communication*.language"]
+    },
+    {
+      "entity": "CND_COND",
+      "resource": "Condition",
+      "paths": ["code"]
+    },
+    {
+      "entity": "CND_ONDT",
+      "resource": "Condition",
+      "paths": ["onsetDateTime", "onsetPeriod.start"]
+    },
+    {
+      "entity": "CND_RESDT",
+      "resource": "Condition",
+      "paths": ["abatementDateTime", "abatementPeriod.end"]
+    },
+    {
+      "entity": "IMM_ADMDT",
+      "resource": "Immunization",
+      "paths": ["occurrenceDateTime"]
+    },
+    {
+      "entity": "IMM_VACC",
+      "resource": "Immunization",
+      "paths": ["vaccineCode"]
+    },
+    {
+      "entity": "IMM_LOTNO",
+      "resource": "Immunization",
+      "paths": ["lotNumber"]
+    },
+    {
+      "entity": "PRC_PROC",
+      "resource": "Procedure",
+      "paths": ["code"]
+    },
+    {
+      "entity": "PRC_PERF_DATE",
+      "resource": "Procedure",
+      "paths": ["performedDateTime", "performedPeriod.start"]
+    },
+    {
+      "entity": "PRC_PRCDT",
+      "resource": "Procedure",
+      "paths": ["performedDateTime", "performedPeriod.start"]
+    },
+    {
+      "entity": "LAB_TEST",
+      "resource": "Observation",
+      "paths": ["code"],
+      "selector": {
+        "path": "category*.coding*.code",
+        "equalsAny": ["laboratory"]
+      }
+    },
+    {
+      "entity": "LAB_PERFDT",
+      "resource": "Observation",
+      "paths": ["effectiveDateTime", "effectivePeriod.start", "issued"],
+      "selector": {
+        "path": "category*.coding*.code",
+        "equalsAny": ["laboratory"]
+      }
+    },
+    {
+      "entity": "LAB_RESVALUE",
+      "resource": "Observation",
+      "paths": ["value[x]"],
+      "selector": {
+        "path": "category*.coding*.code",
+        "equalsAny": ["laboratory"]
+      }
+    },
+    {
+      "entity": "LAB_RESUOM",
+      "resource": "Observation",
+      "paths": ["valueQuantity.code", "valueQuantity.unit"],
+      "selector": {
+        "path": "category*.coding*.code",
+        "equalsAny": ["laboratory"]
+      }
+    },
+    {
+      "entity": "LAB_RSTAT",
+      "resource": "Observation",
+      "paths": ["status"],
+      "selector": {
+        "path": "category*.coding*.code",
+        "equalsAny": ["laboratory"]
+      }
+    },
+    {
+      "entity": "VIT_VITAL",
+      "resource": "Observation",
+      "paths": ["code"],
+      "selector": {
+        "path": "category*.coding*.code",
+        "equalsAny": ["vital-signs"]
+      }
+    },
+    {
+      "entity": "VIT_RESUNIT",
+      "resource": "Observation",
+      "paths": ["valueQuantity.code", "valueQuantity.unit"],
+      "selector": {
+        "path": "category*.coding*.code",
+        "equalsAny": ["vital-signs"]
+      }
+    },
+    {
+      "entity": "VIT_PERFDT",
+      "resource": "Observation",
+      "paths": ["effectiveDateTime", "effectivePeriod.start", "issued"],
+      "selector": {
+        "path": "category*.coding*.code",
+        "equalsAny": ["vital-signs"]
+      }
+    }
+  ]
+}
