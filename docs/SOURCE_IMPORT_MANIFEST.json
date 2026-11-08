@@ -1,0 +1,135 @@
+{
+  "manifest_version": "0.1.0",
+  "as_of": "2026-11-08",
+  "purpose": "E-00 source freeze before PIQITT 2.0 imports; observational record, not import authorization",
+  "destination": {
+    "repository": "natosit-dev/piqitt",
+    "branch": "piqitt-2.0",
+    "base_commit": "a40300e4950d73ed192a2112cf516b4ec46a184b",
+    "baseline_converter": {
+      "path": "scripts/fhir_convert_backend.py",
+      "git_blob_sha": "fe7709fd217f5316239e844cc85f77530c441a76"
+    },
+    "baseline_evaluator": {
+      "path": "scripts/piqi_eval.py",
+      "git_blob_sha": "1315e2da2c6cf157f4a16b2e116f8312ee054f4e"
+    }
+  },
+  "donors": [
+    {
+      "repository": "natosit-dev/piqitt",
+      "ref": "sasi",
+      "revision": "94b6a0d0e57ccc7d9c054ed3a7f1bdd3ba504b72",
+      "license_observed": "Apache-2.0",
+      "usage": "candidate source only; no import",
+      "selected_files": {
+        "scripts/sasi_analyzer.py": "a17c52a9223c6517e376017b6280574fccfd16e6",
+        "scripts/sasi_sams.py": "4d1547c1413251185b9b0a0fc5fea8213d97c95f",
+        "scripts/sasi_run.py": "20eba82067778d3c36a91434755f8ed8df4a8d12",
+        "scripts/sasi_summary.py": "06ad01c53b7ed332a9ba9f603d5d8a6bc679948b",
+        "tests/test_sasi.py": "813fa13199e21803de7a1ea3689b3ec1cc8d3a45"
+      }
+    },
+    {
+      "repository": "natosit-dev/piqitt",
+      "ref": "WAP_AS",
+      "revision": "79afe2ac092f7e1186a05f4940e1de06ce623566",
+      "license_observed": "Apache-2.0",
+      "usage": "candidate source only; no import",
+      "selected_files": {
+        "scripts/wap_runner.py": "b469655e273ea7a1c3988793fb5cdd2b7f1493c8",
+        "scripts/run_repo.py": "a11dfdf2bde82ff7753810f36b579c440e5433f7",
+        "scripts/wap_cli.py": "731904940414244b25c31133d51cdfa801f02a91",
+        "testing/test_wap_runner.py": "5d1cd6f7fb15b1d6f86d87c959380917af8a2bc3"
+      }
+    },
+    {
+      "repository": "natosit-dev/piqitt",
+      "ref": "experiment/official-piqi-artifacts",
+      "revision": "04d20a3b9411a5f8b470491a4ac010d41c1d818d",
+      "license_observed": "Apache-2.0 at repository root; official PIQI reference rights to verify separately",
+      "usage": "candidate source only; no import",
+      "selected_files": {
+        "scripts/piqi_reference.py": "1f5d92f380ee27b1139e180ebe20f742ac3548c3",
+        "reference/piqi/fhir_bindings_v0.json": "2e88e596b5443e38451612ea85d003dde7b2849d",
+        "tests/test_piqi_reference.py": "74df0ff680c8bc91359b32b85da36a4117ac5054"
+      }
+    },
+    {
+      "repository": "natosit-dev/piqitt_connect",
+      "ref": "main",
+      "revision": "b2b85d556bb8dc4443a8b9d57bea5a408ec5b6ef",
+      "license_observed": "GPL-3.0",
+      "usage": "candidate source only; compatibility and authorship review required",
+      "selected_files": {
+        "lib/fhir_convert_backend.py": "122b9f2fe24052dc068efd689da8e4d7e06d831b",
+        "lib/piqi_eval.py": "67bad5cf5ce236358df63b87576e44444f1841ca",
+        "pages/2_IRIS_Connect_Demo.py": "9344e98e8c4ef679eea540c74b984ef65b4e9862"
+      }
+    },
+    {
+      "repository": "natosit-dev/piqitt-contest",
+      "ref": "main",
+      "revision": "fa01286f93b54da48e3660620fabc2e2da2bb548",
+      "license_observed": "Apache-2.0",
+      "usage": "historical behavior and fixtures only; no import",
+      "notes": [
+        "requirements.txt contains unresolved Git conflict markers; do not use as install manifest"
+      ]
+    },
+    {
+      "repository": "natosit-dev/piqitt_dev",
+      "ref": "main",
+      "revision": "9f66ff4541f334875e36301972b9e171497c7f5a",
+      "license_observed": "Apache-2.0",
+      "usage": "historical test and FHIR viewer candidate; no import",
+      "notes": [
+        "licensing/author ownership not inferred solely from repository license"
+      ]
+    },
+    {
+      "repository": "natosit-dev/medilacra_connect",
+      "ref": "main",
+      "revision": "d26829fb1eb4b5c8b1db6cd8a45376dfaf459e74",
+      "license_observed": "AGPL-3.0",
+      "usage": "external source of controlled reality and evidence ideas; do not copy wholesale",
+      "selected_files": {
+        "connectathon/fhir_control.py": "005b6c162adcca7055c880e557559019d6243cc5"
+      }
+    },
+    {
+      "repository": "natosit-dev/medilacra_connect",
+      "ref": "feature/piqi-endpoint-execution",
+      "revision": "4ffa984f2d064223ed9b50a6a95473c5a8267e8d",
+      "license_observed": "AGPL-3.0",
+      "usage": "optional endpoint evidence reference; no import",
+      "selected_files": {
+        "connectathon/piqi_execution.py": "6aaa26bbe5d93b3cdf42d6a820b61ba361cdf2a9"
+      }
+    },
+    {
+      "repository": "natosit-dev/medilacra_fhir_engine",
+      "ref": "main",
+      "revision": "35b4b88c5c7e71da5965c5731c5efeac22673492",
+      "license_observed": "GPL-2.0",
+      "usage": "synthetic domain engine external adapter candidate; no import"
+    }
+  ],
+  "baseline_controls": [
+    {
+      "input": "tests/fixtures/e00/hl7_smoke_messages.hl7",
+      "sha256": "c3b0780a9804120f05c988665f0594f1c953bd08fd8373b4606703f8b31e8edd",
+      "summary": "docs/baselines/e00_converter_smoke_summary.json",
+      "summary_sha256": "fa8dd56df00b767f162b87d79bb8d39c2b649b3c4700b7705c9f04c1c9f9c448",
+      "test": "tests/test_e00_converter_baseline.py",
+      "execution": "5 unittest checks passed against identical original converter blob, using Python 3.13.5; not full repository test execution"
+    }
+  ],
+  "caveats": [
+    "Hashes pin Git objects, not a claim that all potential donor dependencies or rights have been verified.",
+    "Remote GitHub HTTPS clone from the execution container was blocked by unavailable DNS.",
+    "Exact original converter was locally available as an uploaded file and its Git blob SHA verified. Other repository tests not executed here.",
+    "IRIS, WAP_AS, SaSI and reference PIQI integration baselines remain historical/unreproduced at E-00.",
+    "No code imported or application behavior changed."
+  ]
+}
