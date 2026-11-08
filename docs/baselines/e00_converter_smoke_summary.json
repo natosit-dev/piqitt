@@ -1,0 +1,58 @@
+{
+  "source_git_blob_sha": "fe7709fd217f5316239e844cc85f77530c441a76",
+  "scope": "pinned original converter only; not independent R4 validation, PIQI, or SaSI",
+  "results": [
+    {
+      "message_index": 1,
+      "message_type": "ADT^A01",
+      "resource_types": {
+        "Encounter": 1,
+        "MessageHeader": 1,
+        "Observation": 1,
+        "Patient": 1
+      },
+      "observation_value_kinds": [
+        "valueString"
+      ],
+      "fhir_bundle_type": "message"
+    },
+    {
+      "message_index": 2,
+      "message_type": "ORU^R01",
+      "resource_types": {
+        "DiagnosticReport": 1,
+        "Encounter": 1,
+        "MessageHeader": 1,
+        "Observation": 2,
+        "Patient": 1
+      },
+      "observation_value_kinds": [
+        "valueQuantity",
+        "valueCodeableConcept"
+      ],
+      "fhir_bundle_type": "message"
+    },
+    {
+      "message_index": 3,
+      "message_type": "DFT^P03",
+      "resource_types": {
+        "Claim": 1,
+        "Encounter": 1,
+        "MessageHeader": 1,
+        "Patient": 1
+      },
+      "observation_value_kinds": [],
+      "fhir_bundle_type": "message"
+    },
+    {
+      "message_index": 4,
+      "message_type": "ORM^O01",
+      "resource_types": {
+        "MessageHeader": 1,
+        "Patient": 1
+      },
+      "observation_value_kinds": [],
+      "fhir_bundle_type": "message"
+    }
+  ]
+}
