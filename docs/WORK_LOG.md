@@ -4,7 +4,7 @@
 
 **Repository:** `natosit-dev/piqitt`  
 **Branch:** `piqitt-2.0`  
-**Base:** original `main` branch (source base commit to be recorded in the first baseline-audit entry)  
+**Base:** original `main` at `a40300e4950d73ed192a2112cf516b4ec46a184b` (verify against Git history during E-00)  
 **Scope:** planning/provenance only; no application code edits.
 
 ### Actions
